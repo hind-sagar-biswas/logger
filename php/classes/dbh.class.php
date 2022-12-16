@@ -20,7 +20,7 @@ class Dbh
         $this->port = $port;
     }
 
-    protected function connect()
+    protected function conn()
     {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         try {
@@ -34,12 +34,19 @@ class Dbh
         }
     }
 
-    protected function connect_pdo()
+    protected function conn_pdo($pdo_type = 'fetch')
     {
         try {
             $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->db;
             $pdo = new PDO($dsn, $this->user, $this->pass);
-            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $pdo->query('SET NAMES utf8');
+            $pdo->query('SET CHARACTER_SET utf8_unicode_ci');
+
+            if ($pdo_type == 'put') {
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } else {
+                $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            }
 
             return $pdo;
         } catch (PDOException $e) {
