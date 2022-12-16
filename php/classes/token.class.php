@@ -4,7 +4,7 @@ class Token extends User
 {
     protected $tokenTable = 'login_token';
 
-    protected function createTable()
+    protected function createTokenTable()
     {
         $sql = "CREATE TABLE $this->tokenTable (
                         id               INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,5 +80,10 @@ class Token extends User
         $statement->bind_param('i', $user_id);
 
         return $statement->execute();
+    }
+
+    public function initialize() {
+        $this->createUserTable();
+        $this->createTokenTable();
     }
 };
