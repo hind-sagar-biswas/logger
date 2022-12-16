@@ -24,3 +24,7 @@ $DB = ($DEBUG) ? ['host' => 'localhost', 'user' => 'root', 'pass' => '', 'name' 
 
 // For direct access redirects:
 if ($_SERVER['SCRIPT_NAME'] == '/config.php') header("Location: " . $BASE_URI);
+
+
+// INCLUDE required files
+require $CLASS . 'dbh.class.php';
