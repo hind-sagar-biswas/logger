@@ -3,7 +3,7 @@
 class Token extends User
 {
     protected $tokenTable = 'login_token';
-    
+
 
     protected function createTokenTable()
     {
@@ -20,7 +20,7 @@ class Token extends User
         if ($this->conn()->query($sql) == TRUE) return True;
         return False;
     }
-    
+
 
     protected function generate_tokens(): array
     {
@@ -28,7 +28,7 @@ class Token extends User
         $validator = bin2hex(random_bytes(32));
         return [$selector, $validator, $selector . ':' . $validator];
     }
-    
+
 
     protected function parse_token(string $token): ?array
     {
@@ -36,7 +36,7 @@ class Token extends User
         if ($parts && count($parts) == 2) return [$parts[0], $parts[1]];
         return null;
     }
-    
+
 
     protected function insert_user_token(int $user_id, string $selector, string $hashed_validator, string $expiry): bool
     {
@@ -46,7 +46,7 @@ class Token extends User
         $statement->bind_param('isss', $user_id, $selector, $hashed_validator, $expiry);
         return $statement->execute();
     }
-    
+
 
     protected function insert_user_token_pdo(int $user_id, string $selector, string $hashed_validator, string $expiry): bool
     {
@@ -61,7 +61,7 @@ class Token extends User
 
         return $statement->execute();
     }
-    
+
 
     protected function find_user_token_by_selector(string $selector)
     {
@@ -78,7 +78,7 @@ class Token extends User
 
         return $result->fetch_assoc();
     }
-    
+
 
     protected function find_user_by_token(string $token)
     {
@@ -87,7 +87,7 @@ class Token extends User
         if (!$tokens) return null;
 
         $sql = 'SELECT users.id, username
-            FROM $this->userTable
+            FROM $this->userTable AS users
             INNER JOIN $this->tokenTable ON user_id = users.id
             WHERE selector = ? AND
                 expiry > now()
@@ -100,7 +100,7 @@ class Token extends User
 
         return $result->fetch_assoc();
     }
-    
+
 
     protected function validate_token($selector)
     {
@@ -108,17 +108,17 @@ class Token extends User
         if (!$tokens) return false;
         return $tokens;
     }
-    
+
 
     protected function delete_user_token(int $user_id): bool
     {
-        $sql = "DELETE FROM $this->tokenTable WHERE user_id = :user_id";
+        $sql = "DELETE FROM $this->tokenTable WHERE user_id = ?";
         $statement = $this->conn()->prepare($sql);
         $statement->bind_param('i', $user_id);
 
         return $statement->execute();
     }
-    
+
 
     public function initialize()
     {

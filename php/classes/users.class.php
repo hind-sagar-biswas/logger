@@ -21,7 +21,41 @@ class User extends Dbh
         return False;
     }
 
-    protected function find_user_by_username($nameOrMail): array {
-        return [];
+    protected function find_user_by_username(string $nameOrMail): array {
+        $sql = "SELECT id, username
+                    FROM $this->userTable
+                    WHERE username = ? OR 
+                            email = ?
+                    LIMIT 1";
+                    
+        $statement = $this->conn()->prepare($sql);
+        $statement->bind_param('ss', $nameOrMail, $nameOrMail);
+        $statement->execute();
+        $result = $statement->get_result();
+
+        return $result->fetch_assoc();
+    }
+
+    protected function find_user_by_id(int $uid): array {
+        $sql = "SELECT *
+                    FROM $this->userTable
+                    WHERE id = ?
+                    LIMIT 1";
+
+        $statement = $this->conn()->prepare($sql);
+        $statement->bind_param('i', $uid);
+        $statement->execute();
+        $result = $statement->get_result();
+
+        return $result->fetch_assoc();
+    }
+
+    protected function delete_user_by_id(int $uid): bool
+    {
+        $sql = "DELETE FROM $this->userTable WHERE id = ?";
+        $statement = $this->conn()->prepare($sql);
+        $statement->bind_param('i', $uid);
+
+        return $statement->execute();
     }
 };
