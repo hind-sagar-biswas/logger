@@ -1,6 +1,6 @@
 <?php
 
-class Dbh
+class Dbh extends Contr
 {
     private $host = "localhost";
     private $user = "root";

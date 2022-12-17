@@ -3,6 +3,7 @@
 class Token extends User
 {
     protected $tokenTable = 'login_token';
+    
 
     protected function createTokenTable()
     {
@@ -19,6 +20,7 @@ class Token extends User
         if ($this->conn()->query($sql) == TRUE) return True;
         return False;
     }
+    
 
     protected function generate_tokens(): array
     {
@@ -26,6 +28,7 @@ class Token extends User
         $validator = bin2hex(random_bytes(32));
         return [$selector, $validator, $selector . ':' . $validator];
     }
+    
 
     protected function parse_token(string $token): ?array
     {
@@ -33,6 +36,7 @@ class Token extends User
         if ($parts && count($parts) == 2) return [$parts[0], $parts[1]];
         return null;
     }
+    
 
     protected function insert_user_token(int $user_id, string $selector, string $hashed_validator, string $expiry): bool
     {
@@ -42,6 +46,7 @@ class Token extends User
         $statement->bind_param('isss', $user_id, $selector, $hashed_validator, $expiry);
         return $statement->execute();
     }
+    
 
     protected function insert_user_token_pdo(int $user_id, string $selector, string $hashed_validator, string $expiry): bool
     {
@@ -56,6 +61,7 @@ class Token extends User
 
         return $statement->execute();
     }
+    
 
     protected function find_user_token_by_selector(string $selector)
     {
@@ -72,6 +78,37 @@ class Token extends User
 
         return $result->fetch_assoc();
     }
+    
+
+    protected function find_user_by_token(string $token)
+    {
+        $tokens = $this->parse_token($token);
+
+        if (!$tokens) return null;
+
+        $sql = 'SELECT users.id, username
+            FROM $this->userTable
+            INNER JOIN $this->tokenTable ON user_id = users.id
+            WHERE selector = ? AND
+                expiry > now()
+            LIMIT 1';
+
+        $statement = $this->conn()->prepare($sql);
+        $statement->bind_param('s', $tokens[0]);
+        $statement->execute();
+        $result = $statement->get_result();
+
+        return $result->fetch_assoc();
+    }
+    
+
+    protected function validate_token($selector)
+    {
+        $tokens = $this->find_user_token_by_selector($selector);
+        if (!$tokens) return false;
+        return $tokens;
+    }
+    
 
     protected function delete_user_token(int $user_id): bool
     {
@@ -81,8 +118,10 @@ class Token extends User
 
         return $statement->execute();
     }
+    
 
-    public function initialize() {
+    public function initialize()
+    {
         $this->createUserTable();
         $this->createTokenTable();
     }

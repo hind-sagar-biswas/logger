@@ -20,4 +20,8 @@ class User extends Dbh
         if ($this->conn()->query($sql) == TRUE) return True;
         return False;
     }
+
+    protected function find_user_by_username($nameOrMail): array {
+        return [];
+    }
 };
