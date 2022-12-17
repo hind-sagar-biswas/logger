@@ -25,6 +25,15 @@ $DB = ($DEBUG) ? ['host' => 'localhost', 'user' => 'root', 'pass' => '', 'name' 
 // For direct access redirects:
 if ($_SERVER['SCRIPT_NAME'] == '/config.php') header("Location: " . $BASE_URI);
 
+// SITE URL MAPPING
+$URLS = [
+    "root" => '/'
+];
+
+// ROUTING FUNCTION
+function redirect_to(string $target, string $type = 'name'): void
+{ header("Location: " . $GLOBALS['BASE_URI'] . $GLOBALS['URLS'][$target]); }
+
 
 // INCLUDE required files
 require $CLASS . 'dbh.class.php';
