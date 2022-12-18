@@ -1,6 +1,10 @@
-<?php 
+<?php
 require './config.php';
 
 $token = new Token();
-// $token->initialize();
+
+require $HTML . 'header.php';
 ?>
+
+<?php
+require $HTML . 'footer.php';

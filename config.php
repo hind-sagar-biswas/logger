@@ -9,10 +9,16 @@ $DOC_ROOT = $_SERVER['DOCUMENT_ROOT'];
 $REQ_URI = $_SERVER['REQUEST_URI'];
 $METHOD = $_SERVER['REQUEST_METHOD'];
 
+// BACKUP PAGE TITLE
+$PAGE_TITLE = 'LOGGER v1.0';
+
 // PHP files directories
-$TEMP = $BASE_DIR . 'php/templates/';
 $CLASS = $BASE_DIR . 'php/classes/';
 $INC = $BASE_DIR . 'php/includes/';
+
+// TEMPLATES
+$FORM = $BASE_DIR . 'templates/forms/';
+$HTML = $BASE_DIR . 'templates/includes/';
 
 // STATIC files directories
 $CSS = $BASE_URI . 'assets/css/';
