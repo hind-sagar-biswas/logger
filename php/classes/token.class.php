@@ -102,10 +102,14 @@ class Token extends User
     }
 
 
-    protected function validate_token($selector)
+    protected function validate_token($token)
     {
+        [$selector, $validator] = $this->parse_token($token);
         $tokens = $this->find_user_token_by_selector($selector);
+
         if (!$tokens) return false;
+        if (md5($validator) != $tokens['hashed_validator']) return false;
+        
         return $tokens;
     }
 

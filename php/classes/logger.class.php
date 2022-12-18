@@ -53,12 +53,8 @@ class Logger extends Token
         $token = filter_input(INPUT_COOKIE, 'remember_me');
 
         if ($token && $this->validate_token($token)) {
-
             $user = $this->find_user_by_token($token);
-
-            if ($user) {
-                return $this->session_login($user);
-            }
+            if ($user) return $this->session_login($user);
         }
         return false;
     }
