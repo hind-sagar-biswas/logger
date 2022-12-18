@@ -2,18 +2,20 @@
 
 class Logger extends Token
 {
-    public function login($nameOrMail, string $password, bool $rememberMe = false): bool
+    public function login($nameOrMail, string $password, bool $rememberMe = false): array
     {
+        if (empty($nameOrMail)) return [False, 'Error: input can\'t be empty!'];
+
         $user = $this->find_user_by_username($nameOrMail);
 
         // if user found, check the password
         if ($user && md5($password) == $user['password']) {
             $this->session_login($user);
             if ($rememberMe) $this->remember_me($user['id']);
-            return true;
+            return [true, 'Login Successful!'];
         }
 
-        return false;
+        return [false, 'Login Failed'];
     }
 
     /**
@@ -62,7 +64,7 @@ class Logger extends Token
     }
 
 
-    public function remember_me(int $user_id, int $day = 30)
+    public function remember_me(int $user_id, int $day = 30): void
     {
         [$selector, $validator, $token] = $this->generate_tokens();
 
@@ -100,5 +102,40 @@ class Logger extends Token
 
             return True;
         }
+    }
+
+
+    public function register(array $user): array
+    {
+        // Check if inputs are EMPTY
+        if (empty($user['username'])) return [False, 'Error: username can\'t be empty!'];
+        if (empty($user['email'])) return [False, 'Error: email can\'t be empty!'];
+
+        // VALIDATE inputs
+        if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) return [False, 'Error: invalid email!'];
+        if (!preg_match('/^[a-zA-Z][0-9a-zA-Z_]{2,23}[0-9a-zA-Z]$/', $user['username'])) return [False, 'Error: invalid username!'];
+        if (!$user['password']) return [False, 'Error: invalid password'];
+
+        // CHECK if already EXISTS
+        if ($this->check_user_exists($user['username'], 'username')) return [False, 'Error: username already taken!'];
+        if ($this->check_user_exists($user['email'], 'email')) return [False, 'Error: email already taken!'];
+
+        $username = $user['username'];
+        $email = $user['email'];
+        $password = md5($user['password']);
+
+        // Check if remember me enabled
+        if (array_key_exists("rememberMe", $user)) {
+            if ($user['rememberMe'])  $rememberMe = True;
+        }
+        $rememberMe = False;
+
+        // ADD new user
+        $new_user = $this->add_new_user($username, $email, $password);
+        if (!$new_user) return [False, 'Error: error adding new user'];
+
+        // LOGIN new user
+        if ($this->login($email, $password, $rememberMe)) return [True, 'User successfully registered! Try login now...'];
+        return [True, 'User successfully registered! logging in...'];
     }
 }

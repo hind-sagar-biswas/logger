@@ -27,12 +27,16 @@ if ($_SERVER['SCRIPT_NAME'] == '/config.php') header("Location: " . $BASE_URI);
 
 // SITE URL MAPPING
 $URLS = [
-    "root" => '/'
+    "root" => '/',
+    "register" => '/register.php'
 ];
 
 // ROUTING FUNCTION
-function redirect_to(string $target, string $type = 'name'): void
-{ header("Location: " . $GLOBALS['BASE_URI'] . $GLOBALS['URLS'][$target]); }
+function redirect_to(string $target, string $query = ''): void
+{ 
+    if(!empty($query)) $query = '?' . $query;
+    header("Location: " . $GLOBALS['BASE_URI'] . $GLOBALS['URLS'][$target] . $query);
+}
 
 
 // INCLUDE required files
