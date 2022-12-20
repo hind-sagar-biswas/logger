@@ -1,9 +1,12 @@
 <?php
 // DEBUG mode
 $DEBUG = True;
+$DEBUG_MODE = 2; // 1 = cmd PHP server ; 2 = XAMPP server
 
 // BASE info
-$BASE_URI = 'http://localhost:8000/';
+if($DEBUG_MODE == 1) $BASE_URI = 'http://localhost:8000/';
+if($DEBUG_MODE == 2) $BASE_URI = 'http://localhost:8888/logger/';
+
 $BASE_DIR = __DIR__ . '/';
 $DOC_ROOT = $_SERVER['DOCUMENT_ROOT'];
 $REQ_URI = $_SERVER['REQUEST_URI'];
@@ -14,7 +17,7 @@ $PAGE_TITLE = 'LOGGER v1.0';
 
 // PHP files directories
 $CLASS = $BASE_DIR . 'php/classes/';
-$INC = $BASE_DIR . 'php/includes/';
+$INC = $BASE_URI . 'php/includes/';
 
 // TEMPLATES
 $FORM = $BASE_DIR . 'templates/forms/';
@@ -33,20 +36,24 @@ if ($_SERVER['SCRIPT_NAME'] == '/config.php') header("Location: " . $BASE_URI);
 
 // SITE URL MAPPING
 $URLS = [
-    "root" => '/',
-    "register" => '/register.php'
+    "root" => '',
+    "register" => 'register.php'
 ];
 
 // ROUTING FUNCTION
 function redirect_to(string $target, string $query = ''): void
 { 
-    if(!empty($query)) $query = '?' . $query;
-    header("Location: " . $GLOBALS['BASE_URI'] . $GLOBALS['URLS'][$target] . $query);
+    // if(!empty($query)) $query = '?' . $query;
+    // header("Location: " . $GLOBALS['BASE_URI'] . $GLOBALS['URLS'][$target] . $query);
+    echo $query;
 }
 
-
 // INCLUDE required files
+require $CLASS . 'contr.class.php';
 require $CLASS . 'dbh.class.php';
 require $CLASS . 'users.class.php';
 require $CLASS . 'token.class.php';
 require $CLASS . 'logger.class.php';
+
+// INITIATING logger object
+$logger = new Logger($DEBUG);

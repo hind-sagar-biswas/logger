@@ -22,58 +22,80 @@ class User extends Dbh
         return False;
     }
 
-    protected function find_user_by_username(string $nameOrMail): array
+    protected function find_user_by_username(string $nameOrMail)
     {
-        $sql = "SELECT id, username
+        $conn = $this->conn();
+        $sql = "SELECT id, username, password
                     FROM $this->userTable
                     WHERE username = ? OR 
                             email = ?
                     LIMIT 1";
 
-        $statement = $this->conn()->prepare($sql);
-        $statement->bind_param('ss', $nameOrMail, $nameOrMail);
-        $statement->execute();
-        $result = $statement->get_result();
+        $statement = $conn->prepare($sql);
+        $statement->bind_param('ss', $username, $email);
 
-        return $result->fetch_assoc();
+        $username = $nameOrMail;
+        $email = $nameOrMail;
+        $statement->execute();
+        $result = $statement->get_result()->fetch_assoc();
+
+        $statement->close();
+        $conn->close();
+
+        return $result;
     }
 
     protected function find_user_by_id(int $uid): array
     {
+        $conn = $this->conn();
         $sql = "SELECT *
                     FROM $this->userTable
                     WHERE id = ?
                     LIMIT 1";
 
-        $statement = $this->conn()->prepare($sql);
+        $statement = $conn->prepare($sql);
         $statement->bind_param('i', $uid);
         $statement->execute();
         $result = $statement->get_result();
+
+        $statement->close();
+        $conn->close();
 
         return $result->fetch_assoc();
     }
 
     protected function add_new_user($username, $email, $hashed_password)
     {
-        $sql = "INSERT INTO $this->userTable (username, email, password, ) VALUES('$username', '$email', '$hashed_password')";
+        $conn = $this->conn();
+        $sql = "INSERT INTO $this->userTable (username, email, password) VALUES('$username', '$email', '$hashed_password')";
         $getLastEntrySql = "SELECT * FROM $this->userTable ORDER BY id DESC LIMIT 1";
-        if($this->conn()->query($sql)) return mysqli_fetch_assoc(mysqli_query($this->conn, $getLastEntrySql));
+        if($this->conn()->query($sql)) return mysqli_fetch_assoc(mysqli_query($conn, $getLastEntrySql));
         return False;
     }
 
     protected function delete_user_by_id(int $uid): bool
     {
+        $conn = $this->conn();
+
         $sql = "DELETE FROM $this->userTable WHERE id = ?";
-        $statement = $this->conn()->prepare($sql);
+        $statement = $conn->prepare($sql);
         $statement->bind_param('i', $uid);
+
+        $statement->close();
+        $conn->close();
 
         return $statement->execute();
     }
 
     protected function check_user_exists(string $value, string $col): bool
     {
+        $conn = $this->conn();
+
         $sql = "SELECT id FROM $this->userTable WHERE $col = '$value'";
-        $result = $this->conn()->query($sql);
+        $result = $conn->query($sql);
+
+        $conn->close();
+        
         if (!$result) return True;
         if (mysqli_num_rows($result) > 0) return True;
         return False;

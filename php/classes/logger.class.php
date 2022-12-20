@@ -2,12 +2,17 @@
 
 class Logger extends Token
 {
-    public function login($nameOrMail, string $password, bool $rememberMe = false): array
+    public function __construct(bool $DEBUG = False)
+    {
+        $this->DEBUG = $DEBUG;
+    }
+
+    public function login(string $nameOrMail, string $password, bool $rememberMe = false): array
     {
         if (empty($nameOrMail)) return [False, 'Error: input can\'t be empty!'];
 
         $user = $this->find_user_by_username($nameOrMail);
-
+        var_dump($user);
         // if user found, check the password
         if ($user && md5($password) == $user['password']) {
             $this->session_login($user);
@@ -15,7 +20,7 @@ class Logger extends Token
             return [true, 'Login Successful!'];
         }
 
-        return [false, 'Login Failed'];
+        return [false, 'Login Failed : ' . md5($password) . ' | ' . $user['password']];
     }
 
     /**
@@ -44,14 +49,16 @@ class Logger extends Token
      */
     public function checkLogin()
     {
+        session_start();
         // check the session
         if (isset($_SESSION['username'])) {
+            if($this->DEBUG) echo "Found from session";
             return true;
         }
 
         // check the remember_me in cookie
-        $token = filter_input(INPUT_COOKIE, 'remember_me');
-
+        $token = (isset($_COOKIE['remember_me'])) ? $_COOKIE['remember_me'] : 0 ;
+        if($this->DEBUG) echo "Found from token: $token";
         if ($token && $this->validate_token($token)) {
             $user = $this->find_user_by_token($token);
             if ($user) return $this->session_login($user);
@@ -66,15 +73,14 @@ class Logger extends Token
 
         // remove all existing token associated with the user id
         $this->delete_user_token($user_id);
-
+        if($this->DEBUG) echo $token;
         // set expiration date
         $expired_seconds = time() + 60 * 60 * 24 * $day;
 
         // insert a token to the database
-        $hash_validator = md5($validator);
         $expiry = date('Y-m-d H:i:s', $expired_seconds);
 
-        if ($this->insert_user_token($user_id, $selector, $hash_validator, $expiry)) setcookie('remember_me', $token, $expired_seconds);
+        if ($this->insert_user_token($user_id, $selector, $validator, $expiry)) $this->setCookie('remember_me', $token, $expired_seconds);
     }
 
 
@@ -90,14 +96,14 @@ class Logger extends Token
             // remove the remember_me cookie
             if (isset($_COOKIE['remember_me'])) {
                 unset($_COOKIE['remember_me']);
-                setcookie('remember_user', null, -1);
+                $this->setCookie('remember_me', null, -1);
             }
 
             // remove all session data
             session_destroy();
 
             return True;
-        }
+        } return False;
     }
 
 
@@ -131,7 +137,7 @@ class Logger extends Token
         if (!$new_user) return [False, 'Error: error adding new user'];
 
         // LOGIN new user
-        if ($this->login($email, $password, $rememberMe)) return [True, 'User successfully registered! Try login now...'];
+        if ($this->login($username, $password, $rememberMe)) return [True, 'User successfully registered! Try login now...'];
         return [True, 'User successfully registered! logging in...'];
     }
 }
