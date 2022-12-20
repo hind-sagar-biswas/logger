@@ -1,6 +1,9 @@
 <?php
+session_start();
+
 // DEBUG mode
 $DEBUG = True;
+$DEEP_DEBUG = True;
 $DEBUG_MODE = 2; // 1 = cmd PHP server ; 2 = XAMPP server
 
 // BASE info
@@ -31,9 +34,6 @@ $IMG = $BASE_URI . 'assets/images/';
 // DATABASE Connection detailes based on $DEBUG mode
 $DB = ($DEBUG) ? ['host' => 'localhost', 'user' => 'root', 'pass' => '', 'name' => 'logger'] : ['host' => 'localhost', 'user' => 'root', 'pass' => '', 'name' => 'logger'];
 
-// For direct access redirects:
-if ($_SERVER['SCRIPT_NAME'] == '/config.php') header("Location: " . $BASE_URI);
-
 // SITE URL MAPPING
 $URLS = [
     "root" => '',
@@ -43,10 +43,14 @@ $URLS = [
 // ROUTING FUNCTION
 function redirect_to(string $target, string $query = ''): void
 { 
-    // if(!empty($query)) $query = '?' . $query;
-    // header("Location: " . $GLOBALS['BASE_URI'] . $GLOBALS['URLS'][$target] . $query);
-    echo $query;
+    if(!empty($query)) $query = '?' . $query;
+    if(!$GLOBALS['DEEP_DEBUG']) header("Location: " . $GLOBALS['BASE_URI'] . $GLOBALS['URLS'][$target] . $query);
+    echo "<br>$query<br>";
+    die('died');
 }
+
+// For direct access redirects:
+if ($_SERVER['SCRIPT_NAME'] == '/config.php') redirect_to('/');
 
 // INCLUDE required files
 require $CLASS . 'contr.class.php';

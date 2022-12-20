@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['logger-type'])) $type = $_POST['logger-type'];
     else $type = 'login';
 
-    if($type = 'logout') {
+    if($type == 'logout') {
         $logger->logout();
         $message = urlencode('Logged out successfully!');
         redirect_to('root', "t=1&m=$message");

@@ -12,7 +12,13 @@ class Logger extends Token
         if (empty($nameOrMail)) return [False, 'Error: input can\'t be empty!'];
 
         $user = $this->find_user_by_username($nameOrMail);
-        var_dump($user);
+        if($this->DEBUG) {
+            echo "<br>Returned: ";
+            var_dump($user);
+            echo " END<br>";
+            echo "Pass: $password->" . md5($password) . " | " . $user['password'];
+        }
+
         // if user found, check the password
         if ($user && md5($password) == $user['password']) {
             $this->session_login($user);
@@ -20,7 +26,7 @@ class Logger extends Token
             return [true, 'Login Successful!'];
         }
 
-        return [false, 'Login Failed : ' . md5($password) . ' | ' . $user['password']];
+        return [false, 'Login Failed'];
     }
 
     /**
@@ -49,7 +55,6 @@ class Logger extends Token
      */
     public function checkLogin()
     {
-        session_start();
         // check the session
         if (isset($_SESSION['username'])) {
             if($this->DEBUG) echo "Found from session";
@@ -134,10 +139,12 @@ class Logger extends Token
 
         // ADD new user
         $new_user = $this->add_new_user($username, $email, $password);
+        echo var_dump($new_user);
         if (!$new_user) return [False, 'Error: error adding new user'];
 
         // LOGIN new user
-        if ($this->login($username, $password, $rememberMe)) return [True, 'User successfully registered! Try login now...'];
-        return [True, 'User successfully registered! logging in...'];
+        $login  = $this->login($new_user['username'], $user['password'], $rememberMe);
+        if (!$login[0]) return [True, 'User successfully registered! Try login now...'];
+        return [True, 'User successfully registered! logging in...' . $login[1]];
     }
 }

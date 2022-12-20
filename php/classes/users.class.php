@@ -24,6 +24,8 @@ class User extends Dbh
 
     protected function find_user_by_username(string $nameOrMail)
     {
+        echo "<br>$nameOrMail<br>";
+
         $conn = $this->conn();
         $sql = "SELECT id, username, password
                     FROM $this->userTable
@@ -38,10 +40,10 @@ class User extends Dbh
         $email = $nameOrMail;
         $statement->execute();
         $result = $statement->get_result()->fetch_assoc();
-
+        
         $statement->close();
         $conn->close();
-
+        
         return $result;
     }
 
@@ -56,12 +58,12 @@ class User extends Dbh
         $statement = $conn->prepare($sql);
         $statement->bind_param('i', $uid);
         $statement->execute();
-        $result = $statement->get_result();
+        $result = $statement->get_result()->fetch_assoc();
 
         $statement->close();
         $conn->close();
 
-        return $result->fetch_assoc();
+        return $result;
     }
 
     protected function add_new_user($username, $email, $hashed_password)
