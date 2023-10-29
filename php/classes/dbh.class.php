@@ -3,10 +3,10 @@
 class Dbh extends Contr
 {
     
-    private $host = "localhost";
-    private $user = "root";
-    private $pass = "";
-    private $dbName = "logger";
+    private string $host = "localhost";
+    private string $user = "root";
+    private string $pass = "";
+    private string $dbName = "logger";
 
     public function setDbInfo($DB)
     {
@@ -14,11 +14,6 @@ class Dbh extends Contr
         $this->user = $DB['user'];
         $this->pass = $DB['pass'];
         $this->dbName = $DB['name'];
-    }
-
-    public function setPort(int $port)
-    {
-        $this->port = $port;
     }
 
     protected function conn()
@@ -38,7 +33,7 @@ class Dbh extends Contr
     protected function conn_pdo($pdo_type = 'fetch')
     {
         try {
-            $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->db;
+            $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->dbName;
             $pdo = new PDO($dsn, $this->user, $this->pass);
             $pdo->query('SET NAMES utf8');
             $pdo->query('SET CHARACTER_SET utf8_unicode_ci');

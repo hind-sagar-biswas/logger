@@ -40,7 +40,7 @@ class Token extends User
 
     protected function insert_user_token(int $user_id, string $selector, string $validator, string $expiry): bool
     {
-        $hashed_validator = md5($validator);
+        $hashed_validator = hash('sha256', $validator);
 
         $conn = $this->conn();
         $sql = "INSERT INTO $this->tokenTable (user_id, selector, hashed_validator, expiry) VALUES(?, ?, ?, ?)";
@@ -58,7 +58,7 @@ class Token extends User
 
     protected function insert_user_token_pdo(int $user_id, string $selector, string $validator, string $expiry): bool
     {
-        $hashed_validator = md5($validator);
+        $hashed_validator = hash('sha256', $validator);
 
         $sql = "INSERT INTO $this->tokenTable (user_id, selector, hashed_validator, expiry)
             VALUES(:user_id, :selector, :hashed_validator, :expiry)";
@@ -128,7 +128,7 @@ class Token extends User
         $tokens = $this->find_user_token_by_selector($selector);
 
         if (!$tokens) return false;
-        if (md5($validator) != $tokens['hashed_validator']) return false;
+        if (hash('sha256', $validator) != $tokens['hashed_validator']) return false;
         
         return $tokens;
     }

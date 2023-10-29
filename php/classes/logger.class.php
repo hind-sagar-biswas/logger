@@ -16,11 +16,11 @@ class Logger extends Token
             echo "<br>Returned: ";
             var_dump($user);
             echo " END<br>";
-            echo "Pass: $password->" . md5($password) . " | " . $user['password'];
+            echo "Pass: $password->" . hash('sha256', $password) . " | " . $user['password'];
         }
 
         // if user found, check the password
-        if ($user && md5($password) == $user['password']) {
+        if ($user && hash('sha256', $password) == $user['password']) {
             $this->session_login($user);
             if ($rememberMe) $this->remember_me($user['id']);
             return [true, 'Login Successful!'];
@@ -129,7 +129,7 @@ class Logger extends Token
 
         $username = $user['username'];
         $email = $user['email'];
-        $password = md5($user['password']);
+        $password = hash('sha256', $user['password']);
 
         // Check if remember me enabled
         if (array_key_exists("rememberMe", $user)) {
